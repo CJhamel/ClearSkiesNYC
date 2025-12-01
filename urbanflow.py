@@ -14,17 +14,15 @@ class CityRecord:
         location: The location identifier (e.g., street name, intersection)
         traffic_volume: Number of vehicles per hour
         pm25: PM2.5 air quality reading in micrograms per cubic meter
-        no2: NO₂ air quality reading in parts per billion
         date: Optional date string for the record
     """
     
     # Thresholds for high traffic and poor air quality
     HIGH_TRAFFIC_THRESHOLD: int = 1000  # vehicles per hour
     POOR_AIR_PM25_THRESHOLD: float = 12.0  # micrograms per cubic meter
-    POOR_AIR_NO2_THRESHOLD: float = 53.0  # parts per billion
     
     def __init__(self, location: str, traffic_volume: int, pm25: float, 
-                 no2: float, date: Optional[str] = None) -> None:
+                 date: Optional[str] = None) -> None:
         """
         Initialize a CityRecord with traffic and air quality data.
         
@@ -32,13 +30,11 @@ class CityRecord:
             location: Location identifier for this record
             traffic_volume: Traffic volume in vehicles per hour
             pm25: PM2.5 concentration in micrograms per cubic meter
-            no2: NO₂ concentration in parts per billion
             date: Optional date string (format: YYYY-MM-DD)
         """
         self.location = location
         self.traffic_volume = traffic_volume
         self.pm25 = pm25
-        self.no2 = no2
         self.date = date
     
     def is_high_traffic(self) -> bool:
@@ -54,19 +50,18 @@ class CityRecord:
         """
         Determine if this record represents poor air quality conditions.
         
-        Air quality is considered poor if either PM2.5 or NO₂ exceeds their thresholds.
+        Air quality is considered poor if PM2.5 exceeds the threshold.
         
         Returns:
-            True if air quality is poor (either metric exceeds threshold), False otherwise
+            True if air quality is poor (PM2.5 exceeds threshold), False otherwise
         """
-        return (self.pm25 >= CityRecord.POOR_AIR_PM25_THRESHOLD or 
-                self.no2 >= CityRecord.POOR_AIR_NO2_THRESHOLD)
+        return self.pm25 >= CityRecord.POOR_AIR_PM25_THRESHOLD
     
     def compute_pollution_to_traffic_ratio(self) -> float:
         """
-        Calculate the ratio of combined pollution metrics to traffic volume.
+        Calculate the ratio of PM2.5 pollution to traffic volume.
         
-        Combines PM2.5 and NO₂ (normalized) and divides by traffic volume.
+        Divides PM2.5 concentration by traffic volume.
         Higher ratios indicate more pollution per unit of traffic.
         
         Returns:
@@ -75,11 +70,7 @@ class CityRecord:
         if self.traffic_volume == 0:
             return 0.0
         
-        # Combine pollution metrics (PM2.5 in µg/m³, NO₂ in ppb)
-        # Normalize NO₂ by dividing by 10 to bring it closer to PM2.5 scale
-        combined_pollution = self.pm25 + (self.no2 / 10.0)
-        
-        return combined_pollution / self.traffic_volume
+        return self.pm25 / self.traffic_volume
     
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -92,7 +83,6 @@ class CityRecord:
             'location': self.location,
             'traffic_volume': self.traffic_volume,
             'pm25': self.pm25,
-            'no2': self.no2,
             'date': self.date,
             'is_high_traffic': self.is_high_traffic(),
             'is_poor_air': self.is_poor_air(),
@@ -134,22 +124,20 @@ class CityDataSet:
     
     def average_air_quality(self) -> Dict[str, float]:
         """
-        Calculate the average air quality metrics (PM2.5 and NO₂) across all records.
+        Calculate the average PM2.5 air quality metric across all records.
         
         Returns:
-            Dictionary with 'pm25' and 'no2' keys containing average values.
-            Returns {'pm25': 0.0, 'no2': 0.0} if no records exist.
+            Dictionary with 'pm25' key containing average value.
+            Returns {'pm25': 0.0} if no records exist.
         """
         if not self.records:
-            return {'pm25': 0.0, 'no2': 0.0}
+            return {'pm25': 0.0}
         
         total_pm25 = sum(record.pm25 for record in self.records)
-        total_no2 = sum(record.no2 for record in self.records)
         num_records = len(self.records)
         
         return {
-            'pm25': total_pm25 / num_records,
-            'no2': total_no2 / num_records
+            'pm25': total_pm25 / num_records
         }
     
     # TODO (GAGE): implement load_data()
@@ -165,7 +153,7 @@ class CityDataSet:
     #       - Column "Vol" maps to CityRecord.traffic_volume
     #       - Columns "Yr", "M", "D" can be combined to create date string (format: "YYYY-MM-DD")
     #    b) Air quality data: "data/ad_viz_plotval_data (*).csv" files
-    #       - Extract PM2.5 and NO₂ values (column names may vary - check actual file structure)
+    #       - Extract PM2.5 values (column names may vary - check actual file structure)
     #       - Match air quality data to traffic data by location/date
     # 3. Create CityRecord objects from the combined data
     # 4. Append each CityRecord to self.records
@@ -239,7 +227,6 @@ class CityDataSet:
     #   Total Records: [count]
     #   Average Traffic: [value] vehicles/hour
     #   Average PM2.5: [value] µg/m³
-    #   Average NO₂: [value] ppb
     #   High Traffic Locations: [count]
     #   Poor Air Quality Locations: [count]
     #   Hotspots: [list of locations]
@@ -265,7 +252,6 @@ def main():
         location="HEMPSTEAD AVENUE",
         traffic_volume=356,  # Real traffic volume from Automated_Traffic_Volume_Counts dataset
         pm25=12.5,  # Typical NYC PM2.5 reading (micrograms per cubic meter)
-        no2=48.3,  # Typical NYC NO₂ reading (parts per billion)
         date="2016-05-08"
     )
     
@@ -273,7 +259,6 @@ def main():
         location="METROPOLITAN AVENUE",
         traffic_volume=190,  # Real traffic volume from dataset
         pm25=9.8,  # Typical NYC PM2.5 reading
-        no2=42.1,  # Typical NYC NO₂ reading
         date="2016-01-17"
     )
     
@@ -281,7 +266,6 @@ def main():
         location="1 AVENUE",
         traffic_volume=1247,  # Realistic high-traffic NYC street
         pm25=15.2,  # Higher PM2.5 in high-traffic areas
-        no2=58.7,  # Higher NO₂ in high-traffic areas
         date="2016-05-08"
     )
     
@@ -296,10 +280,9 @@ def main():
     print(f"Average Traffic Volume: {avg_traffic:.2f} vehicles/hour")
     print()
     
-    # Print average PM2.5 and NO₂
+    # Print average PM2.5
     avg_air = nyc_data.average_air_quality()
     print(f"Average PM2.5: {avg_air['pm25']:.2f} µg/m³")
-    print(f"Average NO₂: {avg_air['no2']:.2f} ppb")
     print()
     
     # Print pollution-to-traffic ratios for each record
