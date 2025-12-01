@@ -3,7 +3,7 @@ UrbanFlow: NYC Traffic & Air Quality Analysis
 CSC-101 Project
 """
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 
 
 class CityRecord:
@@ -81,7 +81,7 @@ class CityRecord:
         
         return combined_pollution / self.traffic_volume
     
-    def to_dict(self) -> Dict[str, any]:
+    def to_dict(self) -> Dict[str, Any]:
         """
         Convert the CityRecord to a dictionary representation.
         
@@ -155,22 +155,22 @@ class CityDataSet:
     # TODO (GAGE): implement load_data()
     # 
     # INSTRUCTIONS FOR GAGE:
-    # This method should read data from a CSV file and populate self.records with CityRecord objects.
+    # This method should read data from CSV files and populate self.records with CityRecord objects.
     # 
     # Requirements:
-    # 1. Use Python's csv module or pandas to read the CSV file
-    # 2. Parse each row and extract: location, traffic_volume, pm25, no2, and optionally date
-    # 3. Create CityRecord objects from the parsed data
+    # 1. Use Python's csv module or pandas to read the CSV files
+    # 2. You'll need to combine data from TWO sources:
+    #    a) Traffic data: "data/Automated_Traffic_Volume_Counts_20251130.csv"
+    #       - Column "street" maps to CityRecord.location
+    #       - Column "Vol" maps to CityRecord.traffic_volume
+    #       - Columns "Yr", "M", "D" can be combined to create date string (format: "YYYY-MM-DD")
+    #    b) Air quality data: "data/ad_viz_plotval_data (*).csv" files
+    #       - Extract PM2.5 and NO₂ values (column names may vary - check actual file structure)
+    #       - Match air quality data to traffic data by location/date
+    # 3. Create CityRecord objects from the combined data
     # 4. Append each CityRecord to self.records
     # 5. Handle potential errors (file not found, invalid data, missing columns, etc.)
-    # 6. The CSV format may vary, so check the actual column names in the data files
-    # 
-    # Expected CSV columns (may need adjustment based on actual file format):
-    #   - Location/Street/Address (for location)
-    #   - Traffic Volume/Count (for traffic_volume)
-    #   - PM2.5 (for pm25)
-    #   - NO2/NO₂ (for no2)
-    #   - Date (optional, for date)
+    # 6. Note: The air quality CSV files may need special handling (they appear to be alias files)
     #
     def load_data(self, filepath: str) -> None:
         """
@@ -259,29 +259,30 @@ class CityDataSet:
 def main():
     """Test script demonstrating CityRecord and CityDataSet functionality."""
     
-    # Manually create 2-3 CityRecord objects
+    # Manually create 2-3 CityRecord objects using real data from NYC traffic and air quality datasets
+    # Data based on actual NYC traffic volume counts and typical NYC air quality readings
     record1 = CityRecord(
-        location="Times Square",
-        traffic_volume=1500,
-        pm25=15.5,
-        no2=60.0,
-        date="2024-01-15"
+        location="HEMPSTEAD AVENUE",
+        traffic_volume=356,  # Real traffic volume from Automated_Traffic_Volume_Counts dataset
+        pm25=12.5,  # Typical NYC PM2.5 reading (micrograms per cubic meter)
+        no2=48.3,  # Typical NYC NO₂ reading (parts per billion)
+        date="2016-05-08"
     )
     
     record2 = CityRecord(
-        location="Central Park",
-        traffic_volume=800,
-        pm25=8.2,
-        no2=35.0,
-        date="2024-01-15"
+        location="METROPOLITAN AVENUE",
+        traffic_volume=190,  # Real traffic volume from dataset
+        pm25=9.8,  # Typical NYC PM2.5 reading
+        no2=42.1,  # Typical NYC NO₂ reading
+        date="2016-01-17"
     )
     
     record3 = CityRecord(
-        location="Brooklyn Bridge",
-        traffic_volume=1200,
-        pm25=18.3,
-        no2=65.5,
-        date="2024-01-15"
+        location="1 AVENUE",
+        traffic_volume=1247,  # Realistic high-traffic NYC street
+        pm25=15.2,  # Higher PM2.5 in high-traffic areas
+        no2=58.7,  # Higher NO₂ in high-traffic areas
+        date="2016-05-08"
     )
     
     # Create CityDataSet and add records
