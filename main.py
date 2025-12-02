@@ -1,4 +1,4 @@
-from urbanflow import CityDataSet
+from UrbanFlow.urbanflow import CityDataSet
 
 
 def main():
@@ -13,9 +13,6 @@ def main():
 
    # Export summary with yearly averages
    nyc_data.export_summary("nyc_yearly_summary_report.txt")
-
-
-
 
 if __name__ == "__main__":
    main()

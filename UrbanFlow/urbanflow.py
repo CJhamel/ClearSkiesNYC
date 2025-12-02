@@ -342,7 +342,7 @@ class CityDataSet:
 
             # Overall averages
             overall_avg_traffic = self.average_traffic()
-            overall_avg_air = self.average_air_quality()['pm25']
+            overall_avg_air = self.average_air_quality()['pm25'] # Makes it easier to add other air data sets for different gasses
 
             # Aggregate yearly data
             yearly_data: Dict[int, Dict[str, List[float]]] = {}
@@ -395,59 +395,58 @@ class CityDataSet:
 
             print(f"Summary report successfully written to {output_file}")
 
-
         except Exception as e:
             print(f"Error writing summary report: {e}")
 
     # ---- CHRISTOPHER'S TEST CODE BELOW ----
 
-    def main():
-        """Test script demonstrating CityRecord and CityDataSet functionality."""
+def main():
+    """Test script demonstrating CityRecord and CityDataSet functionality."""
 
-        # Manually create 2-3 CityRecord objects using real data from NYC traffic and air quality datasets
-        # Data based on actual NYC traffic volume counts and typical NYC air quality readings
-        record1 = CityRecord(
-            location="HEMPSTEAD AVENUE",
-            traffic_volume=356,  # Real traffic volume from Automated_Traffic_Volume_Counts dataset
-            pm25=12.5,  # Typical NYC PM2.5 reading (micrograms per cubic meter)
-            date="2016-05-08"
-        )
+    # Manually create 2-3 CityRecord objects using real data from NYC traffic and air quality datasets
+    # Data based on actual NYC traffic volume counts and typical NYC air quality readings
+    record1 = CityRecord(
+        location="HEMPSTEAD AVENUE",
+        traffic_volume=356,  # Real traffic volume from Automated_Traffic_Volume_Counts dataset
+        pm25=12.5,  # Typical NYC PM2.5 reading (micrograms per cubic meter)
+        date="2016-05-08"
+    )
 
-        record2 = CityRecord(
-            location="METROPOLITAN AVENUE",
-            traffic_volume=190,  # Real traffic volume from dataset
-            pm25=9.8,  # Typical NYC PM2.5 reading
-            date="2016-01-17"
-        )
+    record2 = CityRecord(
+        location="METROPOLITAN AVENUE",
+        traffic_volume=190,  # Real traffic volume from dataset
+        pm25=9.8,  # Typical NYC PM2.5 reading
+        date="2016-01-17"
+    )
 
-        record3 = CityRecord(
-            location="1 AVENUE",
-            traffic_volume=1247,  # Realistic high-traffic NYC street
-            pm25=15.2,  # Higher PM2.5 in high-traffic areas
-            date="2016-05-08"
-        )
+    record3 = CityRecord(
+        location="1 AVENUE",
+        traffic_volume=1247,  # Realistic high-traffic NYC street
+        pm25=15.2,  # Higher PM2.5 in high-traffic areas
+        date="2016-05-08"
+    )
 
-        # Create CityDataSet and add records
-        nyc_data = CityDataSet("New York City")
-        nyc_data.records.append(record1)
-        nyc_data.records.append(record2)
-        nyc_data.records.append(record3)
+    # Create CityDataSet and add records
+    nyc_data = CityDataSet("New York City")
+    nyc_data.records.append(record1)
+    nyc_data.records.append(record2)
+    nyc_data.records.append(record3)
 
-        # Print average traffic
-        avg_traffic = nyc_data.average_traffic()
-        print(f"Average Traffic Volume: {avg_traffic:.2f} vehicles/hour")
-        print()
+    # Print average traffic
+    avg_traffic = nyc_data.average_traffic()
+    print(f"Average Traffic Volume: {avg_traffic:.2f} vehicles/hour")
+    print()
 
-        # Print average PM2.5
-        avg_air = nyc_data.average_air_quality()
-        print(f"Average PM2.5: {avg_air['pm25']:.2f} µg/m³")
-        print()
+    # Print average PM2.5
+    avg_air = nyc_data.average_air_quality()
+    print(f"Average PM2.5: {avg_air['pm25']:.2f} µg/m³")
+    print()
 
-        # Print pollution-to-traffic ratios for each record
-        print("Pollution-to-Traffic Ratios:")
-        for record in nyc_data.records:
-            ratio = record.compute_pollution_to_traffic_ratio()
-            print(f"  {record.location}: {ratio:.6f}")
+    # Print pollution-to-traffic ratios for each record
+    print("Pollution-to-Traffic Ratios:")
+    for record in nyc_data.records:
+        ratio = record.compute_pollution_to_traffic_ratio()
+        print(f"  {record.location}: {ratio:.6f}")
 
-    if __name__ == "__main__":
-        main()
+if __name__ == "__main__":
+    main()
