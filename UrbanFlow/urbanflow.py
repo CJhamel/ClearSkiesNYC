@@ -370,7 +370,7 @@ class CityDataSet:
                 )
 
             # Hotspots
-            hotspot_threshold = 0.01
+            hotspot_threshold = 0.5
             hotspots = self.find_hotspots(threshold=hotspot_threshold)
             hotspot_locations = [f"{r.location} - Ratio: {r.compute_pollution_to_traffic_ratio():.6f}"
                                  for r in hotspots]
